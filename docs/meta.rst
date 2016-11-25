@@ -70,11 +70,11 @@ Certain classes take a number of elements, or something similar, and allow a cal
 ...
 >>> this._.field
 ...
->>> this._["field"]
+>>> this["_"]["field"]
 
 Of course, `this` can be mixed with other calculations. When evaluating, each instance of this is replaced by ctx.
 
->>> this.width * this.height - this["offset"]
+>>> this.width * this.height - this.offset
 
 
 
