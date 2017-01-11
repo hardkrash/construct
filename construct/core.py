@@ -511,7 +511,7 @@ class BytesInteger(Construct):
     r"""
     A byte field, that parses into and builds from integers as opposed to b-strings. This is similar to Int* fields but can be much longer than 4 or 8 bytes.
 
-    .. seealso:: Analog :func:`~construct.core.BitsInteger` that operatoes on bits.
+    .. seealso:: Analog :func:`~construct.core.BitsInteger` that operates on bits.
 
     :param length: number of bytes in the field, or a function that takes context and returns int
     :param signed: whether the value is signed (two's complement), default is False (unsigned)
