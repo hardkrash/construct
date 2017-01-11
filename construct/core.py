@@ -1555,7 +1555,7 @@ class Switch(Construct):
         self.cases = cases
         self.default = default
         self.includekey = includekey
-        if all(sc.flagbuildnone for sc in cases.values()) and default.flagbuildnone:
+        if all(sc.flagbuildnone for sc in cases.values()) and getattr(default, 'flagbuildnone', False):
             self.flagbuildnone = True
     def _parse(self, stream, context, path):
         key = self.keyfunc(context) if callable(self.keyfunc) else self.keyfunc
