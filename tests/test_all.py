@@ -388,9 +388,11 @@ class TestCore(unittest.TestCase):
 
     def test_switch(self):
         assert Switch(lambda ctx: 5, {1:Byte, 5:Int16ub}).parse(b"\x00\x02") == 2
+        assert Switch(5, {1:Byte, 5:Int16ub}).parse(b"\x00\x02") == 2
         assert Switch(lambda ctx: 6, {1:Byte, 5:Int16ub}, default=Byte).parse(b"\x00\x02") == 0
         assert Switch(lambda ctx: 5, {1:Byte, 5:Int16ub}, includekey=True).parse(b"\x00\x02") == (5,2)
         assert Switch(lambda ctx: 5, {1:Byte, 5:Int16ub}).build(2) == b"\x00\x02"
+        assert Switch(5, {1:Byte, 5:Int16ub}).build(2) == b"\x00\x02"
         assert Switch(lambda ctx: 6, {1:Byte, 5:Int16ub}, default=Byte).build(9) == b"\x09"
         assert Switch(lambda ctx: 5, {1:Byte, 5:Int16ub}, includekey=True).build((5,2)) == b"\x00\x02"
         assert raises(Switch(lambda ctx: 6, {1:Byte, 5:Int16ub}).parse, b"\x00\x02") == SwitchError
