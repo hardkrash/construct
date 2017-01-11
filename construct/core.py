@@ -860,6 +860,11 @@ class Struct(Construct):
                 if sc.name is not None:
                     obj[sc.name] = subobj
                     context[sc.name] = subobj
+                else:
+                    if sc.flagembedded:
+                        subobj = list(subobj.items())
+                        obj.update(subobj)
+                        context.update(subobj)
         return obj
     def _build(self, obj, stream, context, path):
         context = Container(_ = context)
@@ -869,6 +874,8 @@ class Struct(Construct):
                 subobj = obj
             elif sc.flagbuildnone:
                 subobj = obj.get(sc.name, None)
+            elif isinstance(sc, Switch) and sc.name is None:
+                subobj = obj
             else:
                 subobj = obj[sc.name]
             buildret = sc._build(subobj, stream, context, path)
@@ -1540,6 +1547,7 @@ class Switch(Construct):
     @singleton
     class NoDefault(Construct):
         def __init__(self):
+            super(self.__class__, self).__init__()
             self.flagbuildnone = True
         def _parse(self, stream, context, path):
             raise SwitchError("no default case defined")
@@ -1559,7 +1567,10 @@ class Switch(Construct):
             self.flagbuildnone = True
     def _parse(self, stream, context, path):
         key = self.keyfunc(context) if callable(self.keyfunc) else self.keyfunc
-        obj = self.cases.get(key, self.default)._parse(stream, context, path)
+        case = self.cases.get(key, self.default)
+        self.name = case.name  # Rename based upon the case name.
+        self.flagembedded = case.flagembedded
+        obj = case._parse(stream, context, path)
         if self.includekey:
             return key, obj
         else:
@@ -1570,6 +1581,12 @@ class Switch(Construct):
         else:
             key = self.keyfunc(context) if callable(self.keyfunc) else self.keyfunc
         case = self.cases.get(key, self.default)
+        if self.name is None and case.name is not None:
+            self.name = case.name
+            try:
+                obj = obj[self.name]
+            except (KeyError, IndexError, TypeError):
+                pass
         case._build(obj, stream, context, path)
     def _sizeof(self, context, path):
         try:

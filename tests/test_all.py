@@ -400,6 +400,18 @@ class TestCore(unittest.TestCase):
         assert raises(Switch(lambda ctx: 5, {1:Byte, 5:Int16ub}, includekey=True).build, (89,2)) == SwitchError
         assert Switch(lambda ctx: 5, {1:Byte, 5:Int16ub}).sizeof() == 2
         assert raises(Switch(lambda ctx: 5, {}).sizeof) == SwitchError
+        assert Switch(lambda ctx: 5, {1:'liz' / Byte, 5:'tom' / Int16ub}).parse(b'\x00\x02') == 2
+        assert Switch(lambda ctx: 5, {1:'liz' / Byte, 5:'tom' / Int16ub}).build(2) == b'\x00\x02'
+        assert Struct(Switch(lambda ctx: 5, {1:'liz' / Byte, 5:'tom' / Int16ub})).parse(b"\x00\x02") == Container(tom=2)
+        assert Struct(Switch(lambda ctx: 5, {1:'liz' / Byte, 5:'tom' / Int16ub})).build(Container(tom=2)) == b"\x00\x02"
+        assert Struct('lex' / Switch(lambda ctx: 5, {1:Byte, 5:Int16ub})).parse(b"\x00\x02") == Container(lex=2)
+        assert Struct('lex' / Switch(lambda ctx: 5, {1:Byte, 5:Int16ub})).build(Container(lex=2)) == b"\x00\x02"
+        assert Struct('lex' / Switch(lambda ctx: 5, {1:'liz' / Byte, 5:'tom' / Int16ub})).parse(b"\x00\x02") == Container(lex=2)
+        assert Struct('lex' / Switch(lambda ctx: 5, {1:'liz' / Byte, 5:'tom' / Int16ub})).build(Container(lex=2)) == b"\x00\x02"
+        assert Struct('lex' / Switch(lambda ctx: 5, {1:'liz' / Byte, 5:Struct('tom' / Byte, 'bob' / Byte)})).parse(b"\x00\x02") == Container(lex=Container(tom=0)(bob=2))
+        assert Struct('lex' / Switch(lambda ctx: 5, {1:'liz' / Byte, 5:Struct('tom' / Byte, 'bob' / Byte)})).build(Container(lex=Container(tom=0)(bob=2))) == b"\x00\x02"
+        assert Struct(Switch(lambda ctx: 5, {1:'liz' / Byte, 5:Embedded(Struct('tom' / Byte, 'bob' / Byte))})).parse(b"\x00\x02") == Container(tom=0)(bob=2)
+        assert Struct(Switch(lambda ctx: 5, {1:'liz' / Byte, 5:Embedded(Struct('tom' / Byte, 'bob' / Byte))})).build(Container(tom=0)(bob=2)) == b"\x00\x02"
 
     def test_ifthenelse(self):
         common(IfThenElse(True_,  Int8ub, Int16ub), b"\x01", 1, 1)
