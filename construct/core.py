@@ -1549,8 +1549,8 @@ class Switch(Construct):
         self.cases = cases
         self.default = default
         self.includekey = includekey
-        self.flagbuildnone = all(sc.flagbuildnone for sc in cases.values())
-        self.flagembedded = all(sc.flagembedded for sc in cases.values())
+        self.flagbuildnone = all(sc.flagbuildnone for sc in cases.values() if sc is not Pass)
+        self.flagembedded = all(sc.flagembedded for sc in cases.values() if sc is not Pass)
     def _parse(self, stream, context, path):
         key = self.keyfunc(context) if callable(self.keyfunc) else self.keyfunc
         obj = self.cases.get(key, self.default)._parse(stream, context, path)
