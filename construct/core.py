@@ -1561,6 +1561,12 @@ class Switch(Construct):
         else:
             key = self.keyfunc(context) if callable(self.keyfunc) else self.keyfunc
         case = self.cases.get(key, self.default)
+        if self.name is None and case.name is not None:
+            self.name = case.name
+            try:
+                obj = obj[self.name]
+            except (KeyError, IndexError, TypeError):
+                pass
         return case._build(obj, stream, context, path)
     def _sizeof(self, context, path):
         try:
